@@ -4,30 +4,47 @@ import { galleryItems } from "./gallery-items.js";
 const gallery = document.querySelector(".gallery");
 
 createGalleryItems();
+
 function createGalleryItems() {
-  const items = [];
-  for (let i = 0; i < galleryItems.length; i++) {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.style.backgroundImage = "";
-    item.classList.add("item");
-    items.push(item);
+  for (const galleryItem of galleryItems) {
+    const galleryLi = document.createElement("li");
+    galleryLi.classList.add("gallery__item");
+    gallery.append(galleryLi);
+
+    const galleryLink = document.createElement("a");
+    galleryLink.classList.add("gallery__link");
+    galleryLink.href = galleryItem.original;
+    galleryLi.append(galleryLink);
+
+    const galleryImage = document.createElement("img");
+    galleryImage.classList.add("gallery__image");
+    galleryImage.src = galleryItem.preview;
+    galleryImage.alt = galleryItem.description;
+    galleryImage.dataset.source = galleryItem.original;
+    galleryLink.append(galleryImage);
   }
-  gallery.append(...items);
 }
 
-// const imageMarkup = createMarkup(galleryItems);
-// function createMarkup() {
-//   return galleryItems
-//     .map(({ preview, original, description }) => {
-//       return `
-//         <li class="gallery__item">
-//         <a class="gallery__link" href=${original}">
-//         <img class="gallery__image" src="${preview} data-source=${original} alt="${description}"/></a>
-//         </li>
-//         `;
-//     })
-//     .join("");
-// }
-// console.log(imageMarkup);
+const openImage = (event) => {
+  event.preventDefault();
+  if (event.target.nodeName !== "IMG") {
+    return;
+  }
+  const selectedImage = event.target.dataset.source;
+  const modal = basicLightbox.create(`
+<div class="modal">
+<img src="${selectedImage}" width="800" height="600">
+</div>
+`);
+  modal.show();
+
+  const keyClose = (event) => {
+    if (event.key === "Escape" && modal.visible) {
+      modal.close();
+    }
+  };
+  document.addEventListener("keydown", keyClose);
+};
+
+gallery.addEventListener("click", openImage);
 console.log(galleryItems);
